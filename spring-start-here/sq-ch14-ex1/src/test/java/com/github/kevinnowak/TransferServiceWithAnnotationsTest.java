@@ -3,25 +3,29 @@ package com.github.kevinnowak;
 import com.github.kevinnowak.model.Account;
 import com.github.kevinnowak.repository.AccountRepository;
 import com.github.kevinnowak.service.TransferService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class TransferServiceUnitTest {
+@ExtendWith(MockitoExtension.class)
+public class TransferServiceWithAnnotationsTest {
+
+    @Mock
+    private AccountRepository accountRepository;
+
+    @InjectMocks
+    private TransferService transferService;
 
     @Test
-    @DisplayName("Test the amount is transferred from one account to another if no exception occurs.")
     public void moneyTransferHappyFlow() {
-        // Assumptions / Arrange / Given
-        AccountRepository accountRepository = mock(AccountRepository.class);
-        TransferService transferService = new TransferService(accountRepository);
-
         Account sender = new Account();
         sender.setId(1);
         sender.setAmount(new BigDecimal(1_000));
@@ -33,11 +37,9 @@ public class TransferServiceUnitTest {
         given(accountRepository.findById(sender.getId())).willReturn(Optional.of(sender));
         given(accountRepository.findById(receiver.getId())).willReturn(Optional.of(receiver));
 
-        // Call / Act / When
         transferService.transferMoney(sender.getId(), receiver.getId(), new BigDecimal(100));
 
-        // Validations / Assert / Then
-        verify(accountRepository).changeAmount(1, new BigDecimal(900));
-        verify(accountRepository).changeAmount(2, new BigDecimal(1_100));
+        verify(accountRepository).changeAmount(sender.getId(), new BigDecimal(900));
+        verify(accountRepository).changeAmount(receiver.getId(), new BigDecimal(1_100));
     }
 }
