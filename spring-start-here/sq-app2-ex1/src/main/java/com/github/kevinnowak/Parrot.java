@@ -1,4 +1,4 @@
-package main;
+package com.github.kevinnowak;
 
 public class Parrot {
 
@@ -12,5 +12,3 @@ public class Parrot {
         this.name = name;
     }
 }
-
-
